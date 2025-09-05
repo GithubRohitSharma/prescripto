@@ -9,6 +9,7 @@ A production‑ready MERN application for discovering doctors, booking appointme
 ## Live Links
 - Patient Frontend: https://prescripto-frontend-dun-phi.vercel.app
 - Admin Portal: https://prescripto-admin-bay.vercel.app
+- Backend API: https://prescripto-fawn.vercel.app
 
 ## Repositories
 - Monorepo: https://github.com/GithubRohitSharma/prescripto
@@ -27,7 +28,7 @@ A production‑ready MERN application for discovering doctors, booking appointme
 - *Backend*: Node.js, Express, MongoDB (Mongoose), JWT, Multer, Cloudinary SDK
 - *Frontend/Admin*: React 18, Vite, React Router, TailwindCSS, Axios, React‑Toastify
 - *Payments*: Stripe, Razorpay (optional / configurable)
-- *Deployment*: Vercel (frontends), any Node host for backend (Render/Railway/Vercel server/functions)
+- *Deployment*: Vercel (frontend, admin, backend)
 
 ## Monorepo Structure
 
@@ -175,30 +176,48 @@ Backend (backend/.env):
 Frontends (frontend/.env, admin/.env):
 - VITE_BACKEND_URL – absolute URL to backend, including protocol.
   - Local: http://localhost:4000
-  - Production: https://your-backend-domain.tld
+  - Production: https://prescripto-fawn.vercel.app (or your backend Vercel domain)
 
 Important: Always include the protocol (http:// or https://). Omitting it causes the browser to treat the URL as relative to the frontend origin.
 
-## Deployment Guide
+## Deployment Guide (Vercel for All Apps)
 
-You can deploy the backend to any Node host (Render/Railway/DigitalOcean/EC2). Frontend apps are Vite builds ideal for Vercel/Netlify.
+This project is deployed entirely on Vercel: frontend, admin, and backend.
 
-Backend
-1) Provide environment variables described above
-2) Start command: node server.js (port is PORT)
-3) Ensure public ingress to the backend URL over HTTPS
+### 1) Backend (Vercel)
+- Project root: backend
+- Environment Variables: set all from the Backend .env section in Vercel → Settings → Environment Variables
+- Node version: 18+
+- Build & Output Settings:
+  - Install Command: npm install
+  - Build Command: leave empty (Express server)
+  - Output Directory: leave empty
+- Start/Runtime:
+  - Use the Vercel Node runtime (Serverless) or a Vercel Node Server runtime depending on your setup.
+  - Ensure your public URL is reachable over HTTPS, e.g. https://prescripto-fawn.vercel.app.
 
-Vercel backend options:
-- Easiest: deploy backend to Render/Railway and point frontends to that URL
-- If deploying on Vercel as a Node server, ensure a proper vercel.json and server entry (or use serverless functions). Traditional long‑running servers need a Vercel Node Server runtime or an alternative host
+Note: If you customize routing, configure a vercel.json accordingly. Make sure your API routes are served by the Express app at /api/*.
 
-Frontend/Admin (Vercel)
-1) Set VITE_BACKEND_URL in project settings → Environment Variables
-2) Build command: npm run build
-3) Output directory: dist
+### 2) Frontend (Patients)
+- Project root: frontend
+- Environment Variables:
+  - VITE_BACKEND_URL=https://prescripto-fawn.vercel.app
+- Build & Output Settings:
+  - Install Command: npm install
+  - Build Command: npm run build
+  - Output Directory: dist
+
+### 3) Admin (Doctors/Admin)
+- Project root: admin
+- Environment Variables:
+  - VITE_BACKEND_URL=https://prescripto-fawn.vercel.app
+- Build & Output Settings:
+  - Install Command: npm install
+  - Build Command: npm run build
+  - Output Directory: dist
 
 CORS
-- Backend has app.use(cors()) enabled. For stricter policies, configure CORS with allowed origins matching your frontend domains.
+- Backend currently enables permissive CORS via app.use(cors()). If you need stricter control, restrict to your Vercel domains.
 
 ## Troubleshooting
 
@@ -226,10 +245,10 @@ CORS
 Health checks
 bash
 # Backend health
-curl -i http://localhost:4000/
+curl -i https://prescripto-fawn.vercel.app/
 
 # Admin login (replace with your ADMIN_EMAIL/PASSWORD)
-curl -i -X POST http://localhost:4000/api/admin/login \
+curl -i -X POST https://prescripto-fawn.vercel.app/api/admin/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"admin@example.com","password":"supersecret"}'
 
